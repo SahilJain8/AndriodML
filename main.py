@@ -74,7 +74,7 @@ def predict():
     if request.method == 'POST':
         file = request.files['file']
         filename = file.filename
-        file_path = os.path.join("..\\static", filename)                       
+        file_path = os.path.join("static", filename)                       
         file.save(file_path)
         new_img = keras.utils.load_img(file_path, target_size=(224, 224))
         img = keras.utils.img_to_array(new_img)
