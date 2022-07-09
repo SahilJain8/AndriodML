@@ -3,3 +3,4 @@ Flask_MySQLdb==1.0.1
 numpy==1.22.4
 tensorflow-cpu
 gunicorn
+Pillow
