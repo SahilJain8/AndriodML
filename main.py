@@ -1,31 +1,39 @@
-
 from flask import Flask,request,jsonify
 import numpy as np
 from flask_mysqldb import MySQL
 from tensorflow import keras
+
+import firebase_admin
+from firebase_admin import credentials,storage
+import numpy as np
+import cv2
+cred = credentials.Certificate("andriodminiproject-firebase-adminsdk-wgda3-a7af8ed974.json")
+app=firebase_admin.initialize_app(cred,{ "storageBucket":"andriodminiproject.appspot.com"})
+
+bucket=storage.bucket()
 
 import os
 model = keras.models.load_model('Mymodel.h5')
 
 
 
-li = ['Apple___Apple_scab',
- 'Apple___Black_rot',
- 'Apple___Cedar_apple_rust',
- 'Apple___healthy',
- 'Blueberry___healthy',
- 'Cherry_(including_sour)___Powdery_mildew',
- 'Cherry_(including_sour)___healthy',
- 'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot',
- 'Corn_(maize)___Common_rust_',
- 'Corn_(maize)___Northern_Leaf_Blight',
- 'Corn_(maize)___healthy',
- 'Grape___Black_rot',
- 'Grape___Esca_(Black_Measles)',
- 'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)',
- 'Grape___healthy',
- 'Orange___Haunglongbing_(Citrus_greening)',
- 'Peach___Bacterial_spot',
+li = ['Apple Apple scab',
+ 'Apple Black_rot',
+ 'Apple Cedar_apple_rust',
+ 'Apple healthy',
+ 'Blueberry healthy',
+ 'Cherry (including_sour) Powdery_mildew',
+ 'Cherry (including_sour) healthy',
+ 'Corn (maize) Cercospora_leaf_spot Gray_leaf_spot',
+ 'Corn (maize) Common_rust_',
+ 'Corn (maize) Northern_Leaf_Blight',
+ 'Corn (maize) healthy',
+ 'Grape Black rot',
+ 'Grape Esca (Black_Measles)',
+ 'Grape Leaf blight (Isariopsis_Leaf_Spot)',
+ 'Grape healthy',
+ 'Orange Haunglongbing (Citrus_greening)',
+ 'Peach Bacterial spot',
  'Peach___healthy',
  'Pepper,_bell___Bacterial_spot',
  'Pepper,_bell___healthy',
@@ -62,7 +70,7 @@ mysql = MySQL(app)
 
 @app.route('/')
 def index():
-    return "Hello world"
+    return "Hi server connected suucesfully"
 
 
    
@@ -72,11 +80,14 @@ def index():
 def predict():
     
     if request.method == 'POST':
-        file = request.files['file']
-        filename = file.filename
-        file_path = os.path.join("static", filename)                       
-        file.save(file_path)
-        new_img = keras.utils.load_img(file_path, target_size=(224, 224))
+        file = request.form['file']
+        blob=bucket.get_blob(file)
+        arr=np.frombuffer(blob.download_as_string(),np.uint8)
+        img_path = cv2.imdecode(arr, cv2.COLOR_BGR2BGR555) 
+        #filename = file.filename
+        #file_path = os.path.join("static", filename)                       
+        #ile.save(file_path)
+        new_img = cv2.resize(img_path,(224,224))
         img = keras.utils.img_to_array(new_img)
         img = np.expand_dims(img, axis=0)
         img = img/255   
@@ -87,32 +98,8 @@ def predict():
         for index,item in enumerate(d):
             if item == j:
                 class_name = li[index]
-       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            
-
-        
-       
-        
-    return jsonify({'The condition is':str(class_name)})
+    return str(class_name)
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')
