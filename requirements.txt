@@ -6,3 +6,4 @@ gunicorn
 Pillow
 opencv-python
 firebase_admin
+opencv-contrib-python
