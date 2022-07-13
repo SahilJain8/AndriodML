@@ -4,6 +4,5 @@ numpy==1.22.4
 tensorflow-cpu
 gunicorn
 Pillow
-opencv-python
 firebase_admin
-opencv-contrib-python
+opencv-contrib-python-headless
