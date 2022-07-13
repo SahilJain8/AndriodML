@@ -5,3 +5,4 @@ tensorflow-cpu
 gunicorn
 Pillow
 opencv-python
+firebase_admin
